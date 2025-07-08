@@ -1,0 +1,38 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*build/
+*dist/
+*.egg-info/
+*.so
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+**/env/
+**/venv/
+**/ENV/
+**/env.bak
+**/venv.bak
+
+# IDE and editor directories
+.vscode/
+.idea/
+*.project
+*.pydevproject
+*.tmproj
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+*.log.*

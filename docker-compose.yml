@@ -1,0 +1,112 @@
+services:
+  bbc-be:
+    build: ./app
+    container_name: bbc-be
+    depends_on:
+      pgbouncer:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: pgbouncer
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: postgres
+    volumes:
+      - ./app/static:/app/static
+    networks:
+      - bbc-net
+  master:
+    image: postgres:latest
+    container_name: master
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./config/master/postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
+      - ./config/master/pg_hba.conf:/usr/share/postgresql/pg_hba.conf.sample
+      - pgdata1:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - bbc-net
+    command:
+      [
+        "postgres",
+        "-c",
+        "config_file=/usr/share/postgresql/postgresql.conf.sample",
+        "-c",
+        "hba_file=/usr/share/postgresql/pg_hba.conf.sample",
+      ]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  replication-1:
+    image: postgres:latest
+    container_name: replication-1
+    depends_on:
+      master:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./config/replication/postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
+      - ./scripts/entrypoint-replica.sh:/usr/local/bin/entrypoint-replica.sh
+      - pgdata2:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - bbc-net
+    entrypoint: /usr/local/bin/entrypoint-replica.sh
+
+  replication-2:
+    image: postgres:latest
+    container_name: replication-2
+    depends_on:
+      master:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./config/replication/postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
+      - ./scripts/entrypoint-replica.sh:/usr/local/bin/entrypoint-replica.sh
+      - pgdata3:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - bbc-net
+    entrypoint: /usr/local/bin/entrypoint-replica.sh
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: pgbouncer
+    depends_on:
+      master:
+        condition: service_healthy
+    environment:
+      DB_HOST: master
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: postgres
+      POOL_MODE: session
+      AUTH_TYPE: scram-sha-256
+    ports:
+      - "6432:5432"
+    networks:
+      - bbc-net
+
+volumes:
+  pgdata1:
+  pgdata2:
+  pgdata3:
+
+networks:
+  bbc-net:
+    driver: bridge
