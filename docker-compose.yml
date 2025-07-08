@@ -6,7 +6,7 @@ services:
       pgbouncer:
         condition: service_started
     ports:
-      - "8000:8000"
+      - "3000:8000"
     environment:
       DB_HOST: pgbouncer
       DB_PORT: 5432

@@ -8,7 +8,7 @@ class OrderRepository:
             joinedload(order_model.Order.items).joinedload(order_model.OrderItem.ice_cream)
         ).all()
 
-    def create_order(self, db: Session, user_id: int, order: order_schema.OrderItemCreate):
+    def create_order(self, db: Session, user_id: int, order: order_schema.OrderCreate):
         db_order = order_model.Order(user_id=user_id, total_amount=0)
         db.add(db_order)
         db.flush()

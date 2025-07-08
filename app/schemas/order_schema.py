@@ -18,10 +18,12 @@ class OrderItem(OrderItemBase):
     class Config:
         from_attributes = True
 
+class OrderCreate(BaseModel):
+    items: List[OrderItemCreate]
+
 class Order(BaseModel):
     id: int
     total_amount: float
-    status: str
     created_at: datetime
     items: List[OrderItem]
 

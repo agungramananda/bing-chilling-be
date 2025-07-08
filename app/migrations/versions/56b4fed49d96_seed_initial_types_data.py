@@ -104,8 +104,7 @@ def upgrade() -> None:
         CREATE TABLE orders (
             id SERIAL PRIMARY KEY,
             total_amount FLOAT,
-            status VARCHAR(255) DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             user_id INTEGER,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
@@ -118,9 +117,9 @@ def upgrade() -> None:
             quantity INTEGER,
             price_at_purchase FLOAT,
             order_id INTEGER,
-            flavor_id INTEGER,
+            ice_cream_id INTEGER,
             FOREIGN KEY (order_id) REFERENCES orders(id),
-            FOREIGN KEY (flavor_id) REFERENCES flavors(id)
+            FOREIGN KEY (ice_cream_id) REFERENCES ice_cream(id)
         );
     """)
 

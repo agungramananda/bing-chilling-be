@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 
@@ -7,12 +7,12 @@ from .database import get_db
 from schemas import token_schema, user_schema
 from repositories.user_repository import UserRepository
 from .security import SECRET_KEY
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+bearer_scheme = HTTPBearer()
 
 user_repo = UserRepository()
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), 
+    token: HTTPAuthorizationCredentials = Depends(bearer_scheme), 
     db: Session = Depends(get_db)
 ) -> user_schema.User:
     """
@@ -25,7 +25,7 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY)
+        payload = jwt.decode(token.credentials, SECRET_KEY)
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception

@@ -11,7 +11,7 @@ order_repo = OrderRepository()
 
 @router.post("/", response_model=order_schema.Order, status_code=status.HTTP_201_CREATED)
 def create_new_order(
-    order: order_schema.OrderItemCreate,
+    order: order_schema.OrderCreate,
     db: Session = Depends(get_db),
     current_user: user_schema.User = Depends(get_current_user)
 ):
