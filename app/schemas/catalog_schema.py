@@ -39,3 +39,13 @@ class IceCream(BaseModel):
 
     class Config:
         from_attributes = True
+
+class IceCreamCreate(BaseModel):
+    name: str
+    price: float
+    description: str
+    images: Optional[str] = None
+    type_id: int
+    size_id: int
+    topping_id: Optional[int] = None
+    flavor_ids: List[int]
